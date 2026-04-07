@@ -248,10 +248,11 @@ nav {
   margin-bottom: 1rem;
 }
 
-.icon-blue  { background: rgba(56,189,248,.12); }
+.icon-blue  { background: rgba(56,189,248,.12);  }
 .icon-purple{ background: rgba(129,140,248,.12); }
 .icon-green { background: rgba(52,211,153,.12);  }
 .icon-orange{ background: rgba(251,146,60,.12);  }
+.icon-red   { background: rgba(248,113,113,.12); }
 
 .problem-card h3 { margin-bottom: .5rem; }
 .problem-card p  { color: var(--clr-muted); font-size: .95rem; }
