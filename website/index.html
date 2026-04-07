@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explainable AI for Medical Diagnosis — a Random Forest + SHAP pipeline that predicts patient diagnosis and acuity status from vital-sign data with transparent, feature-level explanations." />
+  <title>XAI for Medical Diagnosis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── Navigation ── -->
+  <nav>
+    <div class="nav-inner">
+      <span class="nav-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        XAI Medical
+      </span>
+      <ul class="nav-links">
+        <li><a href="#problem">Problem</a></li>
+        <li><a href="#pipeline">Pipeline</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#xai">How XAI Works</a></li>
+        <li><a href="#tech">Tech Stack</a></li>
+        <li><a href="#results">Results</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="hero-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>
+        CS410 — Final Year Research Project
+      </div>
+
+      <h1 class="hero-title">
+        Explainable AI for<br />
+        <span class="highlight">Medical Diagnosis</span>
+      </h1>
+
+      <p class="hero-sub">
+        A modular machine-learning system that predicts patient diagnosis and acuity
+        status from vital-sign data — and explains every decision with
+        SHAP feature attributions clinicians can trust.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#pipeline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          Explore the Pipeline
+        </a>
+        <a class="btn btn-outline" href="https://github.com/EzraMulaga/Explainable-Artificial-Intelligence-XAI-for-Medical-Diagnosis" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-val">≥ 98%</div>
+          <div class="stat-desc">Model accuracy on test split</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">4</div>
+          <div class="stat-desc">Vital-sign input features</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">2</div>
+          <div class="stat-desc">Prediction tasks (diagnosis + status)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">SHAP</div>
+          <div class="stat-desc">Per-patient explainability</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Problem Statement ── -->
+  <section id="problem">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">The Challenge</p>
+        <h2>Why Explainability Matters in Healthcare</h2>
+        <p>
+          Machine learning models can match or exceed clinical accuracy, yet they are
+          rarely adopted in practice. The barrier is trust — and trust requires
+          understanding <em>why</em> a model reaches a conclusion.
+        </p>
+      </div>
+
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="icon icon-red">🔒</div>
+          <h3>Black-Box Models</h3>
+          <p>
+            Deep neural networks and complex ensembles offer high accuracy but
+            provide no inherent justification for their outputs, making them
+            unsuitable for high-stakes clinical decisions.
+          </p>
+        </div>
+        <div class="problem-card">
+          <div class="icon icon-blue">🏥</div>
+          <h3>Clinical Trust</h3>
+          <p>
+            Clinicians will only act on a model's recommendation if they can
+            audit its reasoning. Opaque predictions risk being overridden —
+            or worse, blindly followed.
+          </p>
+        </div>
+        <div class="problem-card">
+          <div class="icon icon-orange">⚖️</div>
+          <h3>Regulatory Compliance</h3>
+          <p>
+            Healthcare AI is subject to strict regulation. Explainable outputs
+            allow institutions to document decision rationale and comply with
+            medical device and data-protection standards.
+          </p>
+        </div>
+        <div class="problem-card">
+          <div class="icon icon-green">💡</div>
+          <h3>Our Solution</h3>
+          <p>
+            This project pairs a <strong>Random Forest classifier</strong> with
+            <strong>SHAP</strong> to deliver both predictive accuracy and
+            transparent feature-level reasoning for medical diagnosis.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Pipeline ── -->
+  <section id="pipeline">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">System Architecture</p>
+        <h2>Four-Stage Processing Pipeline</h2>
+        <p>
+          Raw patient vital-sign data flows through preprocessing, model training,
+          inference, and explainability — each stage handled by a dedicated module.
+        </p>
+      </div>
+
+      <div class="pipeline-wrapper">
+
+        <div class="pipeline-step">
+          <div class="pipeline-step-side">
+            <div class="step-num">1</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-body">
+            <h3>Data Preprocessing — <code>preprocessing.py</code></h3>
+            <p>
+              Loads the raw CSV of patient vitals, imputes missing values using
+              column medians (numeric) and column modes (categorical), encodes the
+              multi-class <em>status</em> label, and applies a
+              <strong>MinMaxScaler</strong> fitted only on the training split to
+              prevent data leakage.
+            </p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-step-side">
+            <div class="step-num">2</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-body">
+            <h3>Model Training — <code>model.py</code></h3>
+            <p>
+              Trains two independent <strong>RandomForestClassifier</strong> models
+              on an 80/20 stratified split: one binary classifier for
+              <em>diagnosis</em> (Positive/Negative) and one multi-class classifier
+              for <em>patient status</em> (Stable / At Risk / Critical).
+            </p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-step-side">
+            <div class="step-num">3</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-body">
+            <h3>Inference — <code>prediction.py</code></h3>
+            <p>
+              Accepts a single patient dict or a full DataFrame, scales input
+              features using the saved scaler, and returns diagnosis label,
+              status label, and per-class probability vectors for both models.
+            </p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-step-side">
+            <div class="step-num">4</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-body">
+            <h3>Explainability — <code>explainability.py</code></h3>
+            <p>
+              Runs a <strong>SHAP TreeExplainer</strong> over both models to
+              compute Shapley values. Generates a global
+              <em>beeswarm summary plot</em> of feature importance across the
+              test set and a per-patient <em>waterfall plot</em> showing each
+              feature's directional contribution to the prediction.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features & Outputs ── -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Data Schema</p>
+        <h2>Input Features &amp; Model Outputs</h2>
+        <p>
+          Four standard vital-sign measurements serve as inputs; the model produces
+          two labelled predictions plus probability distributions and SHAP plots.
+        </p>
+      </div>
+
+      <div class="feat-out-grid">
+        <div class="table-card">
+          <div class="table-card-header">📥 Input Features</div>
+          <table>
+            <thead>
+              <tr><th>Feature</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>heart_rate</code></td><td>Beats per minute</td></tr>
+              <tr><td><code>blood_pressure</code></td><td>Systolic BP (mmHg)</td></tr>
+              <tr><td><code>spo2</code></td><td>O₂ saturation (%)</td></tr>
+              <tr><td><code>temperature</code></td><td>Body temp (°C)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-card">
+          <div class="table-card-header">📤 Model Outputs</div>
+          <table>
+            <thead>
+              <tr><th>Output</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>diagnosis</code></td><td>Negative / Positive</td></tr>
+              <tr><td><code>status</code></td><td>Stable / At Risk / Critical</td></tr>
+              <tr><td><code>diagnosis_proba</code></td><td>Per-class probabilities</td></tr>
+              <tr><td><code>status_proba</code></td><td>Per-class probabilities</td></tr>
+              <tr><td>SHAP summary plot</td><td>Global feature importance</td></tr>
+              <tr><td>SHAP waterfall plot</td><td>Per-patient explanation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How XAI Works ── -->
+  <section id="xai">
+    <div class="container">
+      <div class="xai-grid">
+        <div class="xai-text">
+          <p class="section-label">Explainability</p>
+          <h2>How SHAP Makes Predictions Transparent</h2>
+          <p>
+            <strong>SHAP (SHapley Additive exPlanations)</strong> is rooted in
+            cooperative game theory. Each feature is treated as a "player" whose
+            contribution to the final prediction is measured by averaging its
+            marginal effect over all possible subsets of features.
+          </p>
+          <p>
+            For tree-based models like Random Forest, the
+            <strong>TreeExplainer</strong> algorithm computes exact Shapley values
+            in polynomial time — fast enough to explain every prediction in the
+            test set.
+          </p>
+          <p>
+            Two types of explanation are generated:
+          </p>
+          <ul style="color:var(--clr-muted);margin-left:1.2rem;margin-bottom:1rem;">
+            <li><strong style="color:var(--clr-text)">Summary plot</strong> — shows which features drive predictions globally across all patients.</li>
+            <li><strong style="color:var(--clr-text)">Waterfall plot</strong> — shows why the model gave a specific patient a specific score.</li>
+          </ul>
+          <div class="xai-pills">
+            <span class="pill pill-blue">🔍 TreeExplainer</span>
+            <span class="pill pill-purple">📊 Beeswarm Summary</span>
+            <span class="pill pill-green">💧 Waterfall Plot</span>
+          </div>
+        </div>
+
+        <div class="shap-visual">
+          <h3>Example SHAP Feature Contributions</h3>
+
+          <div class="shap-row">
+            <span class="shap-label">spo2</span>
+            <div class="shap-bar-wrap"><div class="shap-bar bar-red" style="width:88%"></div></div>
+            <span class="shap-val">+0.44</span>
+          </div>
+          <div class="shap-row">
+            <span class="shap-label">heart_rate</span>
+            <div class="shap-bar-wrap"><div class="shap-bar bar-orange" style="width:72%"></div></div>
+            <span class="shap-val">+0.36</span>
+          </div>
+          <div class="shap-row">
+            <span class="shap-label">temperature</span>
+            <div class="shap-bar-wrap"><div class="shap-bar bar-blue" style="width:46%"></div></div>
+            <span class="shap-val">+0.23</span>
+          </div>
+          <div class="shap-row">
+            <span class="shap-label">blood_pressure</span>
+            <div class="shap-bar-wrap"><div class="shap-bar bar-teal" style="width:30%"></div></div>
+            <span class="shap-val">+0.15</span>
+          </div>
+
+          <p style="font-size:.78rem;color:var(--clr-muted);margin-top:1.5rem;">
+            ↑ Illustrative values. Low SpO₂ and elevated heart rate are consistently
+            the strongest predictors of a Positive diagnosis.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Tech Stack ── -->
+  <section id="tech">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Technology</p>
+        <h2>Built With</h2>
+        <p>A lean, well-established Python stack — no heavy frameworks required.</p>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-icon">🐼</div>
+          <div class="tech-info">
+            <h3>pandas</h3>
+            <p>Data loading, manipulation, and inspection of tabular patient records.</p>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🔢</div>
+          <div class="tech-info">
+            <h3>NumPy</h3>
+            <p>Numerical array operations underlying preprocessing and model evaluation.</p>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🤖</div>
+          <div class="tech-info">
+            <h3>scikit-learn</h3>
+            <p>RandomForestClassifier, MinMaxScaler, train/test split, and evaluation metrics.</p>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🔦</div>
+          <div class="tech-info">
+            <h3>SHAP</h3>
+            <p>TreeExplainer for exact, efficient Shapley value computation and built-in plots.</p>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">📈</div>
+          <div class="tech-info">
+            <h3>Matplotlib</h3>
+            <p>Saves SHAP summary and waterfall plots to PNG for reporting and review.</p>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">📓</div>
+          <div class="tech-info">
+            <h3>Jupyter</h3>
+            <p>Interactive notebook (<code>xai_demo.ipynb</code>) for end-to-end demonstration.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Results ── -->
+  <section id="results">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Performance</p>
+        <h2>Model Results</h2>
+        <p>
+          Both classifiers are evaluated on a stratified 80/20 holdout split using
+          accuracy, F1-score, and confusion matrix.
+        </p>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="big-num">≥ 98%</div>
+          <div class="result-label">Diagnosis model accuracy</div>
+        </div>
+        <div class="result-card">
+          <div class="big-num">≥ 98%</div>
+          <div class="result-label">Status model accuracy</div>
+        </div>
+        <div class="result-card">
+          <div class="big-num">SpO₂</div>
+          <div class="result-label">Top SHAP feature — diagnosis</div>
+        </div>
+        <div class="result-card">
+          <div class="big-num">BP</div>
+          <div class="result-label">Top SHAP feature — status</div>
+        </div>
+      </div>
+
+      <div class="result-note">
+        <span class="note-icon">ℹ️</span>
+        <span>
+          Results are generated at runtime. Run
+          <code style="font-family:var(--font-mono);font-size:.85rem;color:var(--clr-primary)">python src/explainability.py</code>
+          or open <code style="font-family:var(--font-mono);font-size:.85rem;color:var(--clr-primary)">notebooks/xai_demo.ipynb</code>
+          to reproduce metrics and SHAP plots. High accuracy reflects the clean
+          synthetic dataset; real-world data will require further validation.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-inner">
+      <span>
+        &copy; 2025 Ezra Mulaga &mdash; CS410 Final Year Project &mdash; MIT License
+      </span>
+      <ul class="footer-links">
+        <li><a href="../docs/research_paper.md">Research Paper</a></li>
+        <li><a href="../docs/project_overview.md">Project Overview</a></li>
+        <li><a href="https://github.com/EzraMulaga/Explainable-Artificial-Intelligence-XAI-for-Medical-Diagnosis" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+</body>
+</html>
