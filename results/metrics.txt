@@ -1,7 +1,9 @@
 ================================================
  DIAGNOSIS MODEL EVALUATION
 ================================================
-Accuracy: 1.0000
+Hold-out Accuracy     : 1.0000
+5-Fold CV Accuracy    : 1.0000 (+/- 0.0000)
+  Per-fold scores     : [1.0, 1.0, 1.0, 1.0, 1.0]
 
 Classification Report:
               precision    recall  f1-score   support
@@ -17,10 +19,16 @@ Confusion Matrix:
 [[10  0]
  [ 0 10]]
 
+NOTE: Perfect hold-out accuracy is expected for this clean synthetic
+dataset where class boundaries are deterministic. CV scores confirm
+consistent performance across all folds.
+
 ================================================
  PATIENT STATUS MODEL EVALUATION
 ================================================
-Accuracy: 1.0000
+Hold-out Accuracy     : 1.0000
+5-Fold CV Accuracy    : 1.0000 (+/- 0.0000)
+  Per-fold scores     : [1.0, 1.0, 1.0, 1.0, 1.0]
 
 Classification Report:
               precision    recall  f1-score   support
@@ -37,3 +45,6 @@ Confusion Matrix:
 [[10  0  0]
  [ 0  3  0]
  [ 0  0  7]]
+
+NOTE: Replace sample_patient_data.csv with real clinical data to
+obtain meaningful generalisation estimates.

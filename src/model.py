@@ -19,6 +19,7 @@ from sklearn.metrics import (
     classification_report,
     confusion_matrix,
 )
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 # Default hyper-parameters
@@ -79,7 +80,36 @@ def evaluate_model(
     }
 
 
-def save_model(model: RandomForestClassifier, filepath: str) -> None:
+def cross_validate_model(
+    model: RandomForestClassifier,
+    X: pd.DataFrame,
+    y: pd.Series,
+    n_splits: int = 5,
+    random_state: int = 42,
+) -> dict:
+    """
+    Run stratified k-fold cross-validation to estimate generalisation performance.
+
+    Args:
+        model:        RandomForestClassifier instance (will be cloned internally)
+        X:            full feature DataFrame (scaled)
+        y:            full target Series
+        n_splits:     number of CV folds (default: 5)
+        random_state: random seed for fold splitting
+
+    Returns:
+        dict with keys: cv_scores (array), mean, std
+    """
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    scores = cross_val_score(model, X, y, cv=cv, scoring="accuracy", n_jobs=-1)
+    return {
+        "cv_scores": scores,
+        "mean": float(scores.mean()),
+        "std": float(scores.std()),
+    }
+
+
+
     """Persist a trained model to disk using pickle."""
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     with open(filepath, "wb") as f:
@@ -112,9 +142,27 @@ def train_and_evaluate(data: dict) -> dict:
         status_model, data["X_test"], data["y_status_test"], STATUS_LABELS
     )
 
+    # Cross-validation on the full dataset to assess generalisation
+    X_all = pd.concat([data["X_train"], data["X_test"]], ignore_index=True)
+    y_diag_all = pd.concat(
+        [data["y_diag_train"], data["y_diag_test"]], ignore_index=True
+    )
+    y_status_all = pd.concat(
+        [data["y_status_train"], data["y_status_test"]], ignore_index=True
+    )
+
+    diag_cv = cross_validate_model(
+        RandomForestClassifier(**DEFAULT_RF_PARAMS), X_all, y_diag_all
+    )
+    status_cv = cross_validate_model(
+        RandomForestClassifier(**DEFAULT_RF_PARAMS), X_all, y_status_all
+    )
+
     return {
         "diag_model": diag_model,
         "status_model": status_model,
         "diag_metrics": diag_metrics,
         "status_metrics": status_metrics,
+        "diag_cv": diag_cv,
+        "status_cv": status_cv,
     }
