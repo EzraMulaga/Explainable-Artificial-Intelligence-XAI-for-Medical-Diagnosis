@@ -1,0 +1,168 @@
+"""
+model.py
+--------
+Trains two RandomForestClassifier models:
+  1. Diagnosis model  — binary classification (0 = Negative, 1 = Positive)
+  2. Status model     — multi-class classification (0=Stable, 1=At Risk, 2=Critical)
+
+Provides helpers for training, evaluation, and persistence.
+"""
+
+import os
+import pickle
+
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+)
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+
+
+# Default hyper-parameters
+DEFAULT_RF_PARAMS = {
+    "n_estimators": 200,
+    "max_depth": 10,
+    "min_samples_split": 4,
+    "random_state": 42,
+    "n_jobs": -1,
+}
+
+STATUS_LABELS = ["Stable", "At Risk", "Critical"]
+DIAGNOSIS_LABELS = ["Negative", "Positive"]
+
+
+def train_diagnosis_model(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    params: dict = None,
+) -> RandomForestClassifier:
+    """Train the binary diagnosis classifier."""
+    params = params or DEFAULT_RF_PARAMS
+    model = RandomForestClassifier(**params)
+    model.fit(X_train, y_train)
+    return model
+
+
+def train_status_model(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    params: dict = None,
+) -> RandomForestClassifier:
+    """Train the multi-class patient status classifier."""
+    params = params or DEFAULT_RF_PARAMS
+    model = RandomForestClassifier(**params)
+    model.fit(X_train, y_train)
+    return model
+
+
+def evaluate_model(
+    model: RandomForestClassifier,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+    target_names: list[str],
+) -> dict:
+    """
+    Evaluate a trained model on the test split.
+
+    Returns a dict with keys: accuracy, report, confusion_matrix.
+    """
+    y_pred = model.predict(X_test)
+    return {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "report": classification_report(
+            y_test, y_pred, target_names=target_names, zero_division=0
+        ),
+        "confusion_matrix": confusion_matrix(y_test, y_pred),
+    }
+
+
+def cross_validate_model(
+    model: RandomForestClassifier,
+    X: pd.DataFrame,
+    y: pd.Series,
+    n_splits: int = 5,
+    random_state: int = 42,
+) -> dict:
+    """
+    Run stratified k-fold cross-validation to estimate generalisation performance.
+
+    Args:
+        model:        RandomForestClassifier instance (will be cloned internally)
+        X:            full feature DataFrame (scaled)
+        y:            full target Series
+        n_splits:     number of CV folds (default: 5)
+        random_state: random seed for fold splitting
+
+    Returns:
+        dict with keys: cv_scores (array), mean, std
+    """
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    scores = cross_val_score(model, X, y, cv=cv, scoring="accuracy", n_jobs=-1)
+    return {
+        "cv_scores": scores,
+        "mean": float(scores.mean()),
+        "std": float(scores.std()),
+    }
+
+
+
+    """Persist a trained model to disk using pickle."""
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, "wb") as f:
+        pickle.dump(model, f)
+
+
+def load_model(filepath: str) -> RandomForestClassifier:
+    """Load a persisted model from disk."""
+    with open(filepath, "rb") as f:
+        return pickle.load(f)
+
+
+def train_and_evaluate(data: dict) -> dict:
+    """
+    Convenience wrapper: train both models and return evaluation metrics.
+
+    Args:
+        data: output dict from preprocessing.preprocess()
+
+    Returns:
+        dict with keys: diag_model, status_model, diag_metrics, status_metrics
+    """
+    diag_model = train_diagnosis_model(data["X_train"], data["y_diag_train"])
+    status_model = train_status_model(data["X_train"], data["y_status_train"])
+
+    diag_metrics = evaluate_model(
+        diag_model, data["X_test"], data["y_diag_test"], DIAGNOSIS_LABELS
+    )
+    status_metrics = evaluate_model(
+        status_model, data["X_test"], data["y_status_test"], STATUS_LABELS
+    )
+
+    # Cross-validation on the full dataset to assess generalisation
+    X_all = pd.concat([data["X_train"], data["X_test"]], ignore_index=True)
+    y_diag_all = pd.concat(
+        [data["y_diag_train"], data["y_diag_test"]], ignore_index=True
+    )
+    y_status_all = pd.concat(
+        [data["y_status_train"], data["y_status_test"]], ignore_index=True
+    )
+
+    diag_cv = cross_validate_model(
+        RandomForestClassifier(**DEFAULT_RF_PARAMS), X_all, y_diag_all
+    )
+    status_cv = cross_validate_model(
+        RandomForestClassifier(**DEFAULT_RF_PARAMS), X_all, y_status_all
+    )
+
+    return {
+        "diag_model": diag_model,
+        "status_model": status_model,
+        "diag_metrics": diag_metrics,
+        "status_metrics": status_metrics,
+        "diag_cv": diag_cv,
+        "status_cv": status_cv,
+    }
