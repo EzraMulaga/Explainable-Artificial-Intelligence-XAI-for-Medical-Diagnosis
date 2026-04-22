@@ -1,7 +1,7 @@
-# Project Overview — Explainable AI for Medical Diagnosis
+# Project Overview — Notebook-First Black-Box + XAI Study
 
-This document describes the purpose, structure, and responsibilities of every
-file in this project.
+This document describes the notebook-first structure used to host results for a
+study on integrating black-box AI with XAI techniques.
 
 ---
 
@@ -21,7 +21,7 @@ project-root/
 │── notebooks/
 │   └── xai_demo.ipynb
 │
-│── docs/
+│── overview/
 │   ├── research_paper.md
 │   └── project_overview.md   ← this file
 │
@@ -143,9 +143,10 @@ elevated heart rate, low SpO₂, and high temperature are labelled "At Risk" or
 
 ---
 
-### `notebooks/xai_demo.ipynb`
+### `notebooks/xai_demo.ipynb` (primary artifact)
 
-**Purpose:** Interactive end-to-end demonstration of the full pipeline.
+**Purpose:** Primary hosted artifact containing the end-to-end workflow and
+results of applying SHAP to the dataset.
 
 **Sections:**
 1. **Setup** — install dependencies, import modules
@@ -158,7 +159,7 @@ elevated heart rate, low SpO₂, and high temperature are labelled "At Risk" or
 
 ---
 
-### `docs/research_paper.md`
+### `overview/research_paper.md`
 
 **Purpose:** Academic-style write-up covering motivation, methodology, results,
 and references. Suitable as a basis for a course or conference paper submission.
@@ -182,12 +183,8 @@ the diagnosis prediction across the test set.
 
 ### `README.md`
 
-**Purpose:** Top-level project introduction for GitHub visitors. Covers:
-- Problem statement
-- System pipeline overview
-- Installation and setup instructions
-- How to run training, prediction, and explanation scripts
-- How to open the notebook
+**Purpose:** Top-level repository guide that now emphasizes notebook execution
+and the updated research scope: black-box AI + XAI integration.
 
 ---
 

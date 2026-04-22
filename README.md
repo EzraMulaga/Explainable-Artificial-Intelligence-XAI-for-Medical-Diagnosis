@@ -1,46 +1,38 @@
-# Explainable AI for Medical Diagnosis and Patient Status Prediction
+# Black-Box AI + XAI for Medical Diagnosis (SHAP Notebook Results)
 
-Final year paper for CS410 — Research and Presentation Skills
+Final year paper for CS410 — Research and Presentation Skills.
 
-A modular, research-grade machine learning system that predicts patient
-**diagnosis** and **acuity status** from vital-sign data, while providing
-transparent feature-level explanations using **SHAP**.
+This repository is now notebook-first and is focused on one core research
+question: how to integrate a **black-box AI model** with **XAI techniques** to
+understand model decision making.
 
----
-
-## Problem Statement
-
-Clinical decision-support tools are only trusted when clinicians can understand
-*why* a model reaches a conclusion. This project combines a Random Forest
-classifier with SHAP (SHapley Additive exPlanations) to deliver both predictive
-accuracy and interpretable reasoning for medical diagnosis.
+The primary artifact is:
+- `notebooks/xai_demo.ipynb` — end-to-end SHAP analysis notebook
 
 ---
 
-## System Pipeline
+## Research Scope
+
+Clinical AI systems often achieve strong predictive performance but remain hard
+to trust because they behave as black boxes. This project focuses on integrating
+a black-box model with SHAP (SHapley Additive exPlanations) so the prediction
+process can be inspected, explained, and discussed in the research paper.
+
+---
+
+## Notebook Workflow
 
 ```
-Raw patient vitals (CSV)
+Patient dataset (CSV)
         │
         ▼
-┌─────────────────┐
-│ preprocessing.py│  ← impute missing values, MinMax scale
-└─────────────────┘
+Notebook executes preprocessing + model training
         │
         ▼
-┌─────────────────┐
-│   model.py      │  ← train RandomForest for diagnosis + status
-└─────────────────┘
+Notebook computes SHAP explanations
         │
         ▼
-┌─────────────────┐
-│  prediction.py  │  ← output diagnosis, status, class probabilities
-└─────────────────┘
-        │
-        ▼
-┌──────────────────────┐
-│  explainability.py   │  ← SHAP summary + waterfall plots
-└──────────────────────┘
+Notebook presents metrics + interpretation of model decisions
 ```
 
 ---
@@ -61,7 +53,7 @@ project-root/
 │── notebooks/
 │   └── xai_demo.ipynb            # end-to-end interactive demo
 │
-│── docs/
+│── overview/
 │   ├── research_paper.md         # academic write-up
 │   └── project_overview.md       # detailed file & design documentation
 │
@@ -111,27 +103,19 @@ pip install pandas numpy scikit-learn shap matplotlib jupyter
 
 ## How to Run
 
-### Option A — Interactive notebook (recommended)
+### Option A — Interactive notebook (primary)
 
 ```bash
 jupyter notebook notebooks/xai_demo.ipynb
 ```
 
-### Option B — Command-line scripts
+### Option B — Regenerate notebook outputs non-interactively
 
 ```bash
-# Run full pipeline: preprocess → train → evaluate → SHAP plots
-cd src
-python explainability.py
+jupyter nbconvert --to notebook --execute notebooks/xai_demo.ipynb --output xai_demo.ipynb
 ```
 
-```bash
-# Run single-patient prediction demo
-cd src
-python prediction.py
-```
-
-### Option C — Import as a library
+### Option C — Use source modules directly (optional)
 
 ```python
 from src.preprocessing import preprocess
@@ -151,8 +135,8 @@ print(format_prediction_report(pred))
 
 ## Documentation
 
-- **[Project Overview](docs/project_overview.md)** — detailed description of every file and design decision
-- **[Research Paper](docs/research_paper.md)** — academic write-up with methodology and references
+- **[Project Overview](overview/project_overview.md)** — detailed description of every file and design decision
+- **[Research Paper](overview/research_paper.md)** — paper content aligned to black-box + XAI integration
 
 ---
 

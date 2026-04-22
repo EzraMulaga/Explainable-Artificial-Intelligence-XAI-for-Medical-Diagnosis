@@ -1,12 +1,12 @@
-# Explainable AI for Medical Diagnosis and Patient Status Prediction
+# Integrating Black-Box AI with XAI for Medical Decision Transparency
 
 ## Abstract
 
 Medical diagnosis systems increasingly rely on machine learning (ML) models to assist
 clinicians. However, the "black-box" nature of many ML models limits their clinical
-adoption. This paper presents an explainable AI (XAI) pipeline that combines a
-Random Forest classifier with SHAP (SHapley Additive exPlanations) to predict
-patient diagnosis and status while providing transparent, feature-level explanations.
+adoption. This paper focuses on integrating a black-box model with SHAP
+(SHapley Additive exPlanations) to make model decisions transparent and auditable.
+The implementation and results are hosted in an executable notebook.
 
 ---
 
@@ -19,7 +19,8 @@ because clinicians and regulators demand **interpretability**: not just *what* a
 model predicts, but *why*.
 
 This project addresses that gap by integrating SHAP into a Random Forest–based
-classification pipeline applied to vital-sign patient data.
+classification workflow applied to vital-sign patient data, and presenting results
+through a reproducible notebook artifact.
 
 ---
 
@@ -34,30 +35,22 @@ classification pipeline applied to vital-sign patient data.
 
 ---
 
-## 3. System Architecture
+## 3. Methodological Integration: Black-Box + XAI
 
 ```
 Raw CSV Data
      │
      ▼
-┌─────────────────────┐
-│   preprocessing.py  │  ← missing-value imputation, MinMax normalization
-└─────────────────────┘
+Notebook-driven preprocessing + model training
      │
      ▼
-┌─────────────────────┐
-│     model.py        │  ← two RandomForestClassifiers (diagnosis, status)
-└─────────────────────┘
+Black-box prediction outputs (diagnosis and status)
      │
      ▼
-┌─────────────────────┐
-│   prediction.py     │  ← inference + probability outputs
-└─────────────────────┘
+SHAP attribution and visualization
      │
      ▼
-┌─────────────────────┐
-│ explainability.py   │  ← SHAP TreeExplainer, summary & waterfall plots
-└─────────────────────┘
+Interpretation of model decision process
 ```
 
 ---
@@ -129,7 +122,7 @@ Two visualisations are produced:
 
 ## 6. Results
 
-> *Run `python src/explainability.py` or the notebook to regenerate results.*
+> *Run `notebooks/xai_demo.ipynb` to regenerate and inspect results.*
 
 Both models achieve ≥ 98% accuracy on the test split, reflecting the clean
 synthetic dataset structure. SHAP analysis consistently identifies `spo2` and
@@ -154,10 +147,10 @@ plots allow per-patient reasoning that clinicians can audit.
 
 ## 8. Conclusion
 
-We presented a modular, explainable ML pipeline for medical diagnosis and patient
-status prediction. By combining Random Forest classification with SHAP, the system
-delivers both predictive accuracy and transparent feature-level reasoning, two
-properties essential for clinical trust and regulatory compliance.
+We presented a notebook-centered integration of black-box AI and XAI for medical
+decision support. By combining Random Forest classification with SHAP, the study
+demonstrates how predictive models can be paired with transparent feature-level
+reasoning that supports trust, auditability, and clinical interpretation.
 
 ---
 
